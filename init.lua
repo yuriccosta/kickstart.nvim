@@ -99,7 +99,7 @@ do
   vim.g.maplocalleader = ' '
 
   -- Set to true if you have a Nerd Font installed and selected in the terminal
-  vim.g.have_nerd_font = false
+  vim.g.have_nerd_font = true
 
   -- [[ Setting options ]]
   --  See `:help vim.o`
@@ -110,7 +110,7 @@ do
   vim.o.number = true
   -- You can also add relative line numbers, to help with jumping.
   --  Experiment for yourself to see if you like it!
-  -- vim.o.relativenumber = true
+  vim.o.relativenumber = true
 
   -- Enable mouse mode, can be useful for resizing splits for example!
   vim.o.mouse = 'a'
@@ -362,6 +362,45 @@ do
     },
   }
 
+  -- Minha instalação (Vou alterar para colocar nos custom/plugin depois)
+
+  -- Importo meu arquivo externo
+  require 'meus_atalhos'
+
+  vim.pack.add { gh 'mfussenegger/nvim-dap-python' }
+  vim.pack.add { gh 'linux-cultist/venv-selector.nvim' }
+  -- Configura o plugin para procurar a pasta .venv
+  ---@diagnostic disable-next-line: missing-fields
+  require('venv-selector').setup {
+    name = '.venv',
+    auto_refresh = true,
+  }
+  -- Cria o atalho (Espaço + v + s)
+  vim.keymap.set('n', '<leader>vs', '<cmd>VenvSelect<cr>', { desc = '[V]env [S]elect' })
+
+  -- Força o Neovim a reconhecer o arquivo para o LSP do Docker Compose ligar
+  vim.filetype.add {
+    filename = {
+      ['docker-compose.yml'] = 'yaml.docker-compose',
+      ['docker-compose.yaml'] = 'yaml.docker-compose',
+      ['compose.yml'] = 'yaml.docker-compose',
+      ['compose.yaml'] = 'yaml.docker-compose',
+    },
+  }
+
+  -- Força o arquivo docker-compose a puxar as regras de indentação nativas do YAML
+  vim.api.nvim_create_autocmd('FileType', {
+    pattern = 'yaml.docker-compose',
+    callback = function()
+      -- Carrega o script nativo de indentação e ativa o modo inteligente
+      vim.cmd 'runtime! indent/yaml.vim'
+      vim.bo.smartindent = true
+    end,
+  })
+
+  -- Garante que o Treesitter aplique a coloração correta
+  vim.treesitter.language.register('yaml', 'yaml.docker-compose')
+
   -- Useful plugin to show you pending keybinds.
   vim.pack.add { gh 'folke/which-key.nvim' }
   require('which-key').setup {
@@ -372,6 +411,8 @@ do
     spec = {
       { '<leader>s', group = '[S]earch', mode = { 'n', 'v' } },
       { '<leader>t', group = '[T]oggle' },
+      { '<leader>v', group = '[V]env' },
+      { '<leader>y', group = '[Y]ank' },
       { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } }, -- Enable gitsigns recommended keymaps first
       { 'gr', group = 'LSP Actions', mode = { 'n' } },
     },
@@ -391,10 +432,16 @@ do
     },
   }
 
+  -- Meus temas
+  vim.pack.add { gh 'rebelot/kanagawa.nvim' }
+  vim.pack.add { gh 'ellisonleao/gruvbox.nvim' }
+  vim.pack.add { gh 'loctvl842/monokai-pro.nvim' }
+  vim.pack.add { gh 'marko-cerovac/material.nvim' }
+
   -- Load the colorscheme here.
   -- Like many other themes, this one has different styles, and you could load
   -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-  vim.cmd.colorscheme 'tokyonight-night'
+  vim.cmd.colorscheme 'kanagawa-wave'
 
   -- Highlight todo, notes, etc in comments
   vim.pack.add { gh 'folke/todo-comments.nvim' }
@@ -686,9 +733,23 @@ do
   --  See `:help lsp-config` for information about keys and how to configure
   ---@type table<string, vim.lsp.Config>
   local servers = {
-    -- clangd = {},
+    clangd = {},
     -- gopls = {},
-    -- pyright = {},
+    dockerls = {},
+    docker_compose_language_service = {},
+    pyright = {},
+    html = {},
+    cssls = {},
+    angularls = {},
+    solargraph = {
+      settings = {
+        solargraph = {
+          diagnostics = true, -- Diz para o Solargraph processar o Rubocop
+        },
+      },
+    },
+    -- ruby_lsp = {},
+    emmet_language_server = {},
     -- rust_analyzer = {},
     --
     -- Some languages (like typescript) have entire language plugins that can be useful:
@@ -753,6 +814,11 @@ do
   -- You can press `g?` for help in this menu.
   local ensure_installed = vim.tbl_keys(servers or {})
   vim.list_extend(ensure_installed, {
+    'stylua',
+    'lua_ls',
+    'pyright',
+    'clangd',
+    'html',
     -- You can add other tools here that you want Mason to install
   })
 
@@ -792,8 +858,8 @@ do
     formatters_by_ft = {
       -- rust = { 'rustfmt' },
       -- Conform can also run multiple formatters sequentially
-      -- python = { "isort", "black" },
-      --
+      python = { 'isort', 'black' },
+      ruby = { 'rubocop' },
       -- You can use 'stop_after_first' to run the first available formatter from the list
       -- javascript = { "prettierd", "prettier", stop_after_first = true },
     },
@@ -961,16 +1027,17 @@ do
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   -- require 'kickstart.plugins.debug'
-  -- require 'kickstart.plugins.indent_line'
-  -- require 'kickstart.plugins.lint'
-  -- require 'kickstart.plugins.autopairs'
+  require 'kickstart.plugins.indent_line'
+  require 'kickstart.plugins.lint'
+  require 'kickstart.plugins.autopairs'
   -- require 'kickstart.plugins.neo-tree'
-  -- require 'kickstart.plugins.gitsigns' -- adds gitsigns recommended keymaps
+  require 'kickstart.plugins.gitsigns' -- adds gitsigns recommended keymaps
 
   -- NOTE: You can add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
   --
   --  Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
   -- require 'custom.plugins'
+  require 'custom.plugins.init'
 end
 
 -- The line beneath this is called `modeline`. See `:help modeline`
