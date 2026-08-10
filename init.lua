@@ -359,6 +359,7 @@ do
       topdelete = { text = '‾' }, ---@diagnostic disable-line: missing-fields
       changedelete = { text = '~' }, ---@diagnostic disable-line: missing-fields
     },
+    current_line_blame = true,
   }
 
   -- Minha instalação (Vou alterar para colocar nos custom/plugin depois)
@@ -412,6 +413,7 @@ do
       { '<leader>t', group = '[T]oggle' },
       { '<leader>v', group = '[V]env' },
       { '<leader>y', group = '[Y]ank' },
+      { '<leader>l', group = '[L]azy' },
       { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } }, -- Enable gitsigns recommended keymaps first
       { 'gr', group = 'LSP Actions', mode = { 'n' } },
     },
@@ -747,14 +749,8 @@ do
     html = {},
     cssls = {},
     angularls = {},
-    solargraph = {
-      settings = {
-        solargraph = {
-          diagnostics = true, -- Diz para o Solargraph processar o Rubocop
-        },
-      },
-    },
-    -- ruby_lsp = {},
+    ruby_lsp = {},
+    -- rubocop = {},
     emmet_language_server = {},
     -- rust_analyzer = {},
     --
@@ -871,7 +867,7 @@ do
       -- rust = { 'rustfmt' },
       -- Conform can also run multiple formatters sequentially
       python = { 'isort', 'black' },
-      ruby = { 'rubocop' },
+      -- ruby = { 'rubocop' },
       -- You can use 'stop_after_first' to run the first available formatter from the list
       -- javascript = { "prettierd", "prettier", stop_after_first = true },
     },
@@ -896,8 +892,8 @@ do
   --    See the README about individual language/framework/plugin snippets:
   --    https://github.com/rafamadriz/friendly-snippets
   --
-  -- vim.pack.add { gh 'rafamadriz/friendly-snippets' }
-  -- require('luasnip.loaders.from_vscode').lazy_load()
+  vim.pack.add { gh 'rafamadriz/friendly-snippets' }
+  require('luasnip.loaders.from_vscode').lazy_load()
 
   -- [[ Autocomplete Engine ]]
   vim.pack.add { { src = gh 'saghen/blink.cmp', version = vim.version.range '1.*' } }
@@ -943,7 +939,7 @@ do
     },
 
     sources = {
-      default = { 'lsp', 'path', 'snippets' },
+      default = { 'lsp', 'path', 'snippets', 'buffer' },
     },
 
     snippets = { preset = 'luasnip' },
@@ -955,7 +951,7 @@ do
     -- the rust implementation via `'prefer_rust_with_warning'`
     --
     -- See `:help blink-cmp-config-fuzzy` for more information
-    fuzzy = { implementation = 'lua' },
+    fuzzy = { implementation = 'prefer_rust_with_warning' },
 
     -- Shows a signature help window while you type arguments for a function
     signature = { enabled = true },
@@ -1040,7 +1036,7 @@ do
   --
   -- require 'kickstart.plugins.debug'
   require 'kickstart.plugins.indent_line'
-  require 'kickstart.plugins.lint'
+  -- require 'kickstart.plugins.lint'
   require 'kickstart.plugins.autopairs'
   -- require 'kickstart.plugins.neo-tree'
   require 'kickstart.plugins.gitsigns' -- adds gitsigns recommended keymaps
