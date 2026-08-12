@@ -994,10 +994,17 @@ do
     if has_indent_query then vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()" end
   end
 
+
+  local ignore_treesitter = {
+    csv = true,
+  }
+
   local available_parsers = require('nvim-treesitter').get_available()
   vim.api.nvim_create_autocmd('FileType', {
     callback = function(args)
       local buf, filetype = args.buf, args.match
+
+      if ignore_treesitter[filetype] then return end
 
       local language = vim.treesitter.language.get_lang(filetype)
       if not language then return end
