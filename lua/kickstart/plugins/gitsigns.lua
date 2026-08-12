@@ -55,3 +55,10 @@ require('gitsigns').setup {
     map({ 'o', 'x' }, 'ih', gitsigns.select_hunk)
   end,
 }
+
+local wk_ok, wk = pcall(require, "which-key")
+if wk_ok then
+  wk.add({
+    { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+  })
+end
