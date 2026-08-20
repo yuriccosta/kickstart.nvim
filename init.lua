@@ -364,6 +364,9 @@ do
 
   -- Minha instalação (Vou alterar para colocar nos custom/plugin depois)
 
+  -- Fixa o motor Python do Neovim em um ambiente seguro e isolado
+  vim.g.python3_host_prog = vim.fn.expand('~/.neovim-venv/bin/python')
+
   -- Importo meu arquivo externo
   require 'meus_atalhos'
 
